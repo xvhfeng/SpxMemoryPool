@@ -3,7 +3,7 @@
 <br/>
 ####功能
 SpxMemoryPool是内存池的实现，它由c写成，不依赖于任何其它库，该pool主要完成了以
-下功能：
+下功能：  
 1. 定义了统一的heap object模型；  
 2. 定义了pool中的buff功能，并且可以自定义size和pooling object size；  
 3. 所有的pooling object都memory align;  
