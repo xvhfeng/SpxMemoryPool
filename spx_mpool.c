@@ -53,7 +53,7 @@ struct spx_mpool *spx_mpool_new(SpxLogDelegate *log,
     pool->mb_header = mbuff;
     pool->mb_curr = mbuff;
 
-    mbuff->ptr =SpxMemIncr(mbuff , sizeof(struct spx_mbuff));
+    mbuff->ptr = SpxMemIncr(mbuff, sizeof(struct spx_mbuff));
     mbuff->freesize = pool->mbuff_size;
     return pool;
 }/*}}}*/
@@ -105,7 +105,8 @@ void *spx_mpool_malloc(struct spx_mpool *pool,
             }
         }
         struct spx_object *o =(struct spx_object *) pool->mb_curr->ptr;
-        SpxMemIncr(pool->mb_curr->ptr,realsize);
+        pool->mb_curr->ptr += realsize;
+//        SpxMemIncr(pool->mb_curr->ptr,realsize);
         o->spx_object_size = SpxAlign(size,SpxAlignSize);
         o->spx_object_refs = 1;
         o->spx_object_is_pooling = true;

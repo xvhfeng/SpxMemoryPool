@@ -5,6 +5,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <stddef.h>
 #include <wchar.h>
@@ -107,7 +108,7 @@ extern "C" {
 
 #ifndef spx_res_t
     typedef struct spx_res{
-        struct t;
+        int t;
         union{
             int fd;
             struct{

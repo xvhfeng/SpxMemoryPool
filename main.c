@@ -56,7 +56,7 @@ int main(int argc,char **argv){
 
     printf("%ld %ld %ld .\n",largesize,objsize,obj_algin_size);
     struct spx_mpool *pool = NULL;
-    pool = spx_mpool_new(NULL,0,20 * SpxKB,&err);
+    pool = spx_mpool_new(NULL,0,20 * SpxKB,4 * SpxMB,&err);
     bool_t is_first = true;
     while(true){
         struct test *t1 = (struct test *) spx_mpool_alloc_alone(pool,sizeof(struct test),&err);
