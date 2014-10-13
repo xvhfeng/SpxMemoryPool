@@ -16,15 +16,21 @@
 
 struct spx_mpool *spx_mpool_new(SpxLogDelegate *log,
         size_t pooling_size,
-        size_t buffsize,
+        size_t mbuff_size,
+        size_t keep_mbuff_size,
         err_t *err){/*{{{*/
     size_t real_pooing_size =
         0 == pooling_size ? SpxMemPoolingSizeDefault : pooling_size;
 
     size_t real_buffer_size =
-        0 == buffsize
+        0 == mbuff_size
         ? SpxMemPoolBufferSizeDefault
-        : buffsize;
+        : SpxAlign(mbuff_size,SpxAlignSize);
+
+    size_t real_keep_mbuff_size =
+        0 == keep_mbuff_size
+        ? SpxAlign(4 * SpxMB,real_buffer_size)
+        : SpxAlign(keep_mbuff_size,real_buffer_size);
 
     struct spx_mpool *pool = (struct spx_mpool *)
         spx_object_new(sizeof(*pool),err);
@@ -35,10 +41,11 @@ struct spx_mpool *spx_mpool_new(SpxLogDelegate *log,
     pool->log = log;
     pool->lg_header  = NULL;
     pool->lg_tail = NULL;
-    pool->buffsize = SpxAlign(real_buffer_size,SpxAlignSize);
+    pool->mbuff_size = SpxAlign(real_buffer_size,SpxAlignSize);
+    pool->keep_mbuff_size = real_keep_mbuff_size;
 
     struct spx_mbuff *mbuff = (struct spx_mbuff *)
-        spx_object_new(sizeof(struct spx_mbuff) + pool->buffsize,err);
+        spx_object_new(sizeof(struct spx_mbuff) + pool->mbuff_size,err);
     if(NULL == mbuff){
         spx_object_free(pool);
         return NULL;
@@ -47,7 +54,7 @@ struct spx_mpool *spx_mpool_new(SpxLogDelegate *log,
     pool->mb_curr = mbuff;
 
     mbuff->ptr =SpxMemIncr(mbuff , sizeof(struct spx_mbuff));
-    mbuff->freesize = pool->buffsize;
+    mbuff->freesize = pool->mbuff_size;
     return pool;
 }/*}}}*/
 
@@ -86,13 +93,13 @@ void *spx_mpool_malloc(struct spx_mpool *pool,
                 pool->mb_curr = pool->mb_curr->next;
             } else {
                 struct spx_mbuff *mbuff = (struct spx_mbuff *)
-                    spx_object_new(pool->buffsize,err);
+                    spx_object_new(pool->mbuff_size,err);
                 if(NULL == mbuff){
                     SpxFree(pool);
                     return NULL;
                 }
                 mbuff->ptr =SpxMemIncr(mbuff , sizeof(struct spx_mbuff));
-                mbuff->freesize = pool->buffsize;
+                mbuff->freesize = pool->mbuff_size;
                 pool->mb_curr->next = mbuff;
                 pool->mb_curr = mbuff;
             }
@@ -172,10 +179,22 @@ err_t spx_mpool_clear(struct spx_mpool *pool){/*{{{*/
     pool->lg_tail = NULL;
     struct spx_mbuff *mbuff = NULL;
     struct spx_mbuff *header = pool->mb_header;
+    size_t count = 0;
+    struct spx_mbuff *prev = NULL;
     while(NULL != (mbuff = pool->mb_header)){
         pool->mb_header = mbuff->next;
-        memset(mbuff->buff,0,pool->buffsize);
-        mbuff->freesize = pool->buffsize;
+        if(count < pool->keep_mbuff_size){
+            memset(mbuff->buff,0,pool->mbuff_size);
+            mbuff->freesize = pool->mbuff_size;
+            prev = mbuff;
+        } else {
+            SpxObjectFree(mbuff);;
+            if(NULL != prev){
+                prev->next = NULL;
+                prev = NULL;
+            }
+        }
+        count += pool->mbuff_size;
     }
     pool->mb_header = header;
     pool->mb_curr = header;

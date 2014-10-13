@@ -10,6 +10,7 @@ SpxMemoryPool是内存池的实现，它由c写成，不依赖于任何其它库
 4. pool可以自动区分large object（默认值为8kb）;  
 5. memory pool可以被clear，并且可以在不重新分配buffer的时候重复利用；  
 6. 对于不需要pooling的object，也可以支持；  
+7. 增加了clear时最大mbuff size的支持，这样可以充分让出来没必要分配的内存;  
 
 <br/>
 ####注意事项

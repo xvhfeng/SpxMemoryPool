@@ -71,7 +71,8 @@ extern "C" {
     struct spx_mpool{
         SpxLogDelegate *log;
         size_t pooling_size;
-        size_t buffsize;
+        size_t mbuff_size;
+        size_t keep_mbuff_size;
         struct spx_mbuff *mb_header;
         struct spx_mbuff *mb_curr;
         struct spx_large *lg_header;
@@ -80,7 +81,8 @@ extern "C" {
 
     struct spx_mpool *spx_mpool_new(SpxLogDelegate *log,
             size_t pooling_size,
-            size_t buffsize,
+            size_t mbuff_size,
+            size_t keep_mbuff_count,
             err_t *err);
 
     void *spx_mpool_malloc(struct spx_mpool *pool,
