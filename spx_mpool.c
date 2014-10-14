@@ -236,14 +236,12 @@ bool_t spx_mpool_free(struct spx_mpool *pool,
                SpxMemDecr(p, sizeof(struct spx_large));
             if(NULL == large->prev){
                 pool->lg_header = large->next;
+            } else {
+                large->prev->next = large->next;
             }
             if(NULL == large->next){
                 pool->lg_tail = large->prev;
-            }
-            if(NULL != large->prev){
-                large->prev->next = large->next;
-            }
-            if(NULL != large->next){
+            } else {
                 large->next->prev = large->prev;
             }
             SpxFree(large);
