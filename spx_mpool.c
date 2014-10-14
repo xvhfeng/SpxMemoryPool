@@ -47,7 +47,7 @@ struct spx_mpool *spx_mpool_new(SpxLogDelegate *log,
     struct spx_mbuff *mbuff = (struct spx_mbuff *)
         spx_object_new(sizeof(struct spx_mbuff) + pool->mbuff_size,err);
     if(NULL == mbuff){
-        spx_object_free(pool);
+        SpxObjectFree(pool);
         return NULL;
     }
     pool->mb_header = mbuff;
@@ -95,7 +95,6 @@ void *spx_mpool_malloc(struct spx_mpool *pool,
                 struct spx_mbuff *mbuff = (struct spx_mbuff *)
                     spx_object_new(pool->mbuff_size,err);
                 if(NULL == mbuff){
-                    SpxFree(pool);
                     return NULL;
                 }
                 mbuff->ptr =SpxMemIncr(mbuff , sizeof(struct spx_mbuff));
@@ -106,7 +105,6 @@ void *spx_mpool_malloc(struct spx_mpool *pool,
         }
         struct spx_object *o =(struct spx_object *) pool->mb_curr->ptr;
         pool->mb_curr->ptr += realsize;
-//        SpxMemIncr(pool->mb_curr->ptr,realsize);
         o->spx_object_size = SpxAlign(size,SpxAlignSize);
         o->spx_object_refs = 1;
         o->spx_object_is_pooling = true;
@@ -160,7 +158,7 @@ bool_t spx_mpool_free(struct spx_mpool *pool,
             if(NULL != large->next){
                 large->next->prev = large->prev;
             }
-            free(large);
+            SpxFree(large);
             return true;
         }
     }
@@ -174,7 +172,7 @@ err_t spx_mpool_clear(struct spx_mpool *pool){/*{{{*/
     struct spx_large *large = NULL;
     while(NULL != (large  = pool->lg_header)){
         pool->lg_header = large->next;
-        free(large);
+        SpxFree(large);
     }
     pool->lg_header = NULL;
     pool->lg_tail = NULL;
@@ -210,16 +208,16 @@ err_t spx_mpool_destory(struct spx_mpool *pool){/*{{{*/
     struct spx_large *large = NULL;
     while(NULL != (large  = pool->lg_header )){
         pool->lg_header = large->next;
-        free(large);
+        SpxFree(large);
     }
     pool->lg_header = NULL;
     pool->lg_tail = NULL;
     struct spx_mbuff *mbuff = NULL;
     while(NULL != (mbuff = pool->mb_header)){
         pool->mb_header = mbuff->next;
-        spx_object_free(mbuff);
+        SpxObjectFree(mbuff);
     }
-    spx_object_free(pool);
+    SpxObjectFree(pool);
     return 0;
 }/*}}}*/
 

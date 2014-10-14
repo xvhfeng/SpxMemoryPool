@@ -25,6 +25,6 @@ SpxMemoryPool是内存池的实现，它由c写成，不依赖于任何其它库
 
 <br/>
 ####设计思想和实现
-查看 http://www.94geek.com 
+http://www.94geek.com/2014/10/13/mempool.html
 
 

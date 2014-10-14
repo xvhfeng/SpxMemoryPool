@@ -116,7 +116,7 @@ bool_t spx_object_free(void *p){
     struct spx_object *o = (struct spx_object *) SpxMemDecr(p,SpxObjectAlignSize);
     if(!o->spx_object_is_pooling){
         if(0 == SpxAtomicDecr(&(o->spx_object_refs))){
-            free(o);
+            SpxFree(o);
             return true;
         }
     }
