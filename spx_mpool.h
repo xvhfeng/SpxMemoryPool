@@ -88,6 +88,9 @@ extern "C" {
     void *spx_mpool_malloc(struct spx_mpool *pool,
             size_t size,err_t *err);
 
+    void *spx_mpool_realloc(struct spx_mpool *pool,
+        void *p,size_t s,err_t *err);
+
     void *spx_mpool_alloc(struct spx_mpool *pool,
             size_t numbs,size_t size,err_t *err);
 
