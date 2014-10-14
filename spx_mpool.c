@@ -187,9 +187,13 @@ void *spx_mpool_realloc(struct spx_mpool *pool,
         }
         if(NULL != nlarge->prev){
             nlarge->prev->next = nlarge;
+        }else{
+            pool->lg_header = nlarge;
         }
         if(NULL != nlarge->next){
             nlarge->next->prev = nlarge;
+        }else{
+            pool->lg_tail = nlarge;
         }
         return SpxMemIncr(nlarge, sizeof(struct spx_large));
     }
